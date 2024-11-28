@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<body>
+  <label id="label" for="progress">0%</label>
+  <progress id="progress" max="100" value="70">70%</progress>
+  <div id="size"></div>
+
+  <script>
+    async function main() {
+      function render(current, total) {
+        const percent = current / total * 100;
+
+        size.textContent = (total / 1024 / 1024).toFixed(2) + 'MB';
+        label.textContent = percent.toFixed(2) + '%';
+        progress.value = percent;
+      }
+
+
+      const response = await fetch('http://distribution.bbb3d.renderfarming.net/video/mp4/bbb_sunflower_native_60fps_stereo_abl.mp4');
+      const contentLength = parseInt(response.headers.get('content-length'), 10);
+      const reader = response.body.getReader();
+      let loaded = 0
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+        loaded += value.byteLength;
+        render(loaded, contentLength)
+      }
+    }
+
+    main()
+  </script>
+</body>
